@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenSCAD Learning Guide | bneidlinger.github.io</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Courier+Prime:wght@400;700&display=swap');
+        
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-pink: #ff00ff;
+            --neon-yellow: #ffff00;
+            --dark-bg: #0a0a0f;
+            --card-bg: #1a1a2e;
+            --accent-bg: #16213e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0c0;
+            --grid-color: #2a2a4a;
+            --architect-blue: #00bfff;
+            --warning-amber: #ffa500;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier Prime', monospace;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-attachment: fixed;
+            overflow-x: hidden;
+        }
+
+        /* Animated grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 191, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 191, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(45deg, var(--card-bg), var(--accent-bg));
+            border-bottom: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0, 255, 255, 0.03) 10px,
+                rgba(0, 255, 255, 0.03) 20px
+            );
+            animation: headerPattern 30s linear infinite;
+        }
+
+        @keyframes headerPattern {
+            0% { transform: translate(-50px, -50px); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle::before {
+            content: '> ';
+            color: var(--neon-pink);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--accent-bg);
+            padding: 1rem;
+            border-bottom: 1px solid var(--grid-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            color: var(--neon-cyan);
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Sections */
+        section {
+            margin-bottom: 4rem;
+            background: var(--card-bg);
+            border: 1px solid var(--grid-color);
+            border-radius: 8px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink), var(--neon-yellow), var(--neon-cyan));
+            background-size: 200% 100%;
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 0%; }
+            50% { background-position: 200% 0%; }
+        }
+
+        h2 {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            color: var(--architect-blue);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+        }
+
+        h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            color: var(--neon-pink);
+            margin: 2rem 0 1rem 0;
+            border-left: 3px solid var(--neon-pink);
+            padding-left: 1rem;
+        }
+
+        /* Code blocks */
+        pre {
+            background: var(--dark-bg);
+            border: 1px solid var(--grid-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        pre::before {
+            content: 'OpenSCAD';
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-family: 'Orbitron', monospace;
+        }
+
+        code {
+            font-family: 'Courier Prime', monospace;
+            color: var(--neon-cyan);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Inline code */
+        p code, li code {
+            background: var(--accent-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            color: var(--neon-yellow);
+            font-size: 0.85rem;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        /* Special boxes */
+        .info-box {
+            background: linear-gradient(135deg, rgba(0, 191, 255, 0.1), rgba(0, 255, 255, 0.05));
+            border: 1px solid var(--architect-blue);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .info-box::before {
+            content: 'ℹ';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            font-size: 1.5rem;
+            color: var(--architect-blue);
+        }
+
+        .info-box p {
+            margin-left: 2rem;
+            color: var(--text-primary);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.1), rgba(255, 140, 0, 0.05));
+            border: 1px solid var(--warning-amber);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .warning-box::before {
+            content: '⚠';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            font-size: 1.5rem;
+            color: var(--warning-amber);
+        }
+
+        .warning-box p {
+            margin-left: 2rem;
+            color: var(--text-primary);
+        }
+
+        /* Project showcase */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .project-card {
+            background: var(--accent-bg);
+            border: 1px solid var(--grid-color);
+            border-radius: 6px;
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.2);
+        }
+
+        .project-title {
+            font-family: 'Orbitron', monospace;
+            color: var(--neon-yellow);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Syntax highlighting */
+        .keyword { color: var(--neon-pink); font-weight: bold; }
+        .string { color: var(--neon-yellow); }
+        .comment { color: var(--text-secondary); font-style: italic; }
+        .number { color: var(--architect-blue); }
+        .function { color: var(--neon-cyan); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .nav-container { flex-direction: column; align-items: center; }
+            main { padding: 1rem; }
+            section { padding: 1.5rem; }
+            .project-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Footer */
+        footer {
+            background: var(--card-bg);
+            border-top: 1px solid var(--grid-color);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 4rem;
+        }
+
+        footer a {
+            color: var(--neon-cyan);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>OpenSCAD Learning Guide</h1>
+        <p class="subtitle">Parametric 3D Design for the Modern Architect</p>
+    </header>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#basics" class="nav-link">SCAD 101</a>
+            <a href="#fundamentals" class="nav-link">Fundamentals</a>
+            <a href="#projects" class="nav-link">Real Projects</a>
+            <a href="#advanced" class="nav-link">Advanced Techniques</a>
+            <a href="#workflow" class="nav-link">Workflow</a>
+        </div>
+    </nav>
+
+    <main>
+        <section id="basics">
+            <h2>OpenSCAD 101: The Architect's CAD</h2>
+            
+            <p>OpenSCAD isn't your typical click-and-drag CAD program. It's a <strong>programmable</strong> modeling tool that thinks like an architect's blueprint—parametric, precise, and infinitely modifiable.</p>
+
+            <div class="info-box">
+                <p><strong>Why OpenSCAD?</strong> Unlike traditional CAD, every dimension is a variable. Change one parameter, and your entire design updates intelligently. Perfect for creating families of related objects or fine-tuning fits.</p>
+            </div>
+
+            <h3>Core Philosophy: Code as Blueprint</h3>
+            <p>Think of OpenSCAD code as architectural drawings—clear, documented, and parametric:</p>
+
+            <pre><code><span class="comment">// Device dimensions (like architectural specs)</span>
+<span class="keyword">device_w</span> = <span class="number">148</span>;   <span class="comment">// left‑right width</span>
+<span class="keyword">device_h</span> = <span class="number">86</span>;    <span class="comment">// vertical height</span>
+<span class="keyword">device_d</span> = <span class="number">73</span>;    <span class="comment">// front‑back depth</span>
+<span class="keyword">clear</span>    = <span class="number">1.0</span>;  <span class="comment">// fit clearance (adjust if tight)</span>
+
+<span class="comment">// Create a parametric box</span>
+<span class="function">cube</span>([device_w + <span class="number">2</span>*clear, device_h + <span class="number">2</span>*clear, device_d]);
+</code></pre>
+
+            <h3>Basic Building Blocks</h3>
+            <p>OpenSCAD provides primitive shapes that you combine using boolean operations:</p>
+
+            <pre><code><span class="comment">// Primitives</span>
+<span class="function">cube</span>([<span class="number">10</span>, <span class="number">20</span>, <span class="number">5</span>]);        <span class="comment">// rectangular box</span>
+<span class="function">cylinder</span>(h=<span class="number">10</span>, d=<span class="number">8</span>);      <span class="comment">// cylinder (height, diameter)</span>
+<span class="function">sphere</span>(r=<span class="number">5</span>);               <span class="comment">// sphere (radius)</span>
+
+<span class="comment">// Boolean operations</span>
+<span class="keyword">union</span>() {              <span class="comment">// combine shapes</span>
+    <span class="function">cube</span>([<span class="number">10</span>, <span class="number">10</span>, <span class="number">5</span>]);
+    <span class="function">cylinder</span>(h=<span class="number">5</span>, d=<span class="number">6</span>);
+}
+
+<span class="keyword">difference</span>() {         <span class="comment">// subtract second from first</span>
+    <span class="function">cube</span>([<span class="number">10</span>, <span class="number">10</span>, <span class="number">5</span>]);
+    <span class="function">cylinder</span>(h=<span class="number">6</span>, d=<span class="number">3</span>); <span class="comment">// creates hole</span>
+}
+</code></pre>
+
+            <div class="warning-box">
+                <p><strong>Key Concept:</strong> OpenSCAD uses <strong>Constructive Solid Geometry</strong> (CSG). You build complex shapes by combining, subtracting, and intersecting simple ones—just like architectural massing studies.</p>
+            </div>
+        </section>
+
+        <section id="fundamentals">
+            <h2>Fundamental Concepts</h2>
+
+            <h3>Parametric Design Thinking</h3>
+            <p>Always start with parameters at the top of your file. This makes your designs adaptable and self-documenting:</p>
+
+            <pre><code><span class="comment">// Junction box geometry (real-world constraints)</span>
+<span class="keyword">box_slot_center</span> = <span class="number">89</span>;      <span class="comment">// ~3.5" on-center screw spacing</span>
+<span class="keyword">box_slot_len</span>    = <span class="number">18</span>;      <span class="comment">// slot length for tolerance</span>
+<span class="keyword">socket_clear_d</span>  = <span class="number">52</span>;      <span class="comment">// E26 ceramic socket clearance</span>
+
+<span class="comment">// Material considerations</span>
+<span class="keyword">wall_thickness</span> = <span class="number">3.2</span>;      <span class="comment">// minimum for structural integrity</span>
+<span class="keyword">print_tolerance</span> = <span class="number">0.2</span>;     <span class="comment">// 3D printer fit allowance</span>
+</code></pre>
+
+            <h3>Transformations: Moving Things Around</h3>
+            <p>OpenSCAD uses transformations to position and orient objects:</p>
+
+            <pre><code><span class="comment">// Position, rotate, scale</span>
+<span class="function">translate</span>([<span class="number">10</span>, <span class="number">20</span>, <span class="number">5</span>])    <span class="comment">// move to position</span>
+    <span class="function">rotate</span>([<span class="number">0</span>, <span class="number">0</span>, <span class="number">45</span>])       <span class="comment">// rotate 45° around Z</span>
+        <span class="function">cube</span>([<span class="number">5</span>, <span class="number">5</span>, <span class="number">10</span>]);
+
+<span class="comment">// Center objects for easier positioning</span>
+<span class="function">cube</span>([<span class="number">10</span>, <span class="number">10</span>, <span class="number">5</span>], center=<span class="keyword">true</span>);  <span class="comment">// centered on origin</span>
+</code></pre>
+
+            <h3>Modules: Reusable Components</h3>
+            <p>Modules are like functions—they encapsulate geometry and can be parameterized:</p>
+
+            <pre><code><span class="comment">// Define a reusable mounting tab</span>
+<span class="keyword">module</span> <span class="function">mounting_tab</span>(width=<span class="number">14</span>, height=<span class="number">10</span>, thickness=<span class="number">3.2</span>) {
+    <span class="keyword">difference</span>() {
+        <span class="function">cube</span>([width, thickness, height], center=<span class="keyword">true</span>);
+        <span class="comment">// Screw hole</span>
+        <span class="function">cylinder</span>(h=thickness+<span class="number">0.6</span>, d=<span class="number">3.2</span>, center=<span class="keyword">true</span>);
+    }
+}
+
+<span class="comment">// Use it multiple times</span>
+<span class="keyword">for</span> (side=[-<span class="number">1</span>, <span class="number">1</span>]) {
+    <span class="function">translate</span>([side * <span class="number">50</span>, <span class="number">0</span>, <span class="number">0</span>])
+        <span class="function">mounting_tab</span>();
+}
+</code></pre>
+        </section>
+
+        <section id="projects">
+            <h2>Real Project Breakdown</h2>
+            
+            <p>Let's examine two actual projects from this repository, showing how parametric design solves real-world problems:</p>
+
+            <div class="project-grid">
+                <div class="project-card">
+                    <div class="project-title">Echo Show Mount</div>
+                    <p>Under-cabinet mount with friction hinge. Demonstrates:</p>
+                    <ul>
+                        <li>Device-specific parametrics</li>
+                        <li>Mechanical hinge design</li>
+                        <li>Print-in-place features</li>
+                        <li>Assembly considerations</li>
+                    </ul>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-title">Art-Deco Sconce</div>
+                    <p>Electrical fixture shroud. Shows:</p>
+                    <ul>
+                        <li>Safety-first design</li>
+                        <li>Architectural detailing</li>
+                        <li>Material heat considerations</li>
+                        <li>Code compliance integration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Echo Show Mount: Parametric Device Cradle</h3>
+            <p>This project showcases how to design around <strong>real-world constraints</strong>—the device dimensions drive everything:</p>
+
+            <pre><code><span class="comment">// Start with the thing you're designing FOR</span>
+<span class="keyword">device_w</span> = <span class="number">148</span>;   <span class="comment">// Echo Show 5 width (measured)</span>
+<span class="keyword">device_h</span> = <span class="number">86</span>;    <span class="comment">// height</span>
+<span class="keyword">device_d</span> = <span class="number">73</span>;    <span class="comment">// depth</span>
+
+<span class="comment">// Design decisions become parameters</span>
+<span class="keyword">clear</span> = <span class="number">1.0</span>;       <span class="comment">// how much clearance? (user adjustable!)</span>
+<span class="keyword">lip_h</span> = <span class="number">5</span>;        <span class="comment">// front lip to prevent sliding</span>
+<span class="keyword">cheek_t</span> = <span class="number">3.6</span>;     <span class="comment">// side wall thickness</span>
+
+<span class="comment">// The cradle dimensions are calculated, not hardcoded</span>
+cradle_w = device_w + <span class="number">2</span>*clear + <span class="number">2</span>*cheek_t;
+cradle_h = device_h + <span class="number">2</span>*clear + lip_h;
+</code></pre>
+
+            <div class="info-box">
+                <p><strong>Design Philosophy:</strong> Notice how dimensions <em>cascade</em>. Change the device size or clearance, and the entire cradle updates. This is parametric design thinking—relationships, not just measurements.</p>
+            </div>
+
+            <h3>Advanced Technique: Detent Mechanism</h3>
+            <p>The hinge uses micro-teeth for positioning feedback—a complex feature made simple with parameterization:</p>
+
+            <pre><code><span class="keyword">module</span> <span class="function">detent_ring</span>(r=<span class="number">7.5</span>, teeth=<span class="number">12</span>, depth=<span class="number">0.6</span>) {
+    <span class="keyword">difference</span>() {
+        <span class="function">cylinder</span>(h=<span class="number">1.0</span>, r=r, center=<span class="keyword">true</span>);
+        
+        <span class="comment">// Carve triangular teeth around the circumference</span>
+        <span class="keyword">for</span> (i=[<span class="number">0</span>:teeth-<span class="number">1</span>]) {
+            angle = <span class="number">360</span>/teeth * i;
+            <span class="function">rotate</span>([<span class="number">0</span>, <span class="number">0</span>, angle])
+                <span class="function">translate</span>([r - depth/<span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>])
+                    <span class="comment">// Triangular tooth profile</span>
+                    <span class="function">polygon</span>(points=[[<span class="number">0</span>,<span class="number">0</span>], [depth, depth/<span class="number">2</span>], [depth, -depth/<span class="number">2</span>]]);
+        }
+    }
+}
+</code></pre>
+        </section>
+
+        <section id="advanced">
+            <h2>Advanced Techniques</h2>
+
+            <h3>Print-Conscious Design</h3>
+            <p>Your OpenSCAD designs need to work with 3D printing constraints:</p>
+
+            <pre><code><span class="comment">// Design for 3D printing success</span>
+<span class="keyword">nozzle_size</span> = <span class="number">0.6</span>;           <span class="comment">// drives minimum feature size</span>
+<span class="keyword">layer_height</span> = <span class="number">0.28</span>;         <span class="comment">// affects vertical resolution</span>
+<span class="keyword">min_wall</span> = nozzle_size * <span class="number">4</span>;   <span class="comment">// 4 perimeters for strength</span>
+
+<span class="comment">// Overhangs: design to avoid supports</span>
+<span class="keyword">max_overhang_angle</span> = <span class="number">45</span>;     <span class="comment">// degrees from vertical</span>
+
+<span class="comment">// Tolerance for moving parts</span>
+<span class="keyword">print_clearance</span> = <span class="number">0.2</span>;       <span class="comment">// gap for sliding fits</span>
+<span class="keyword">thread_clearance</span> = <span class="number">0.1</span>;      <span class="comment">// tighter for threaded parts</span>
+</code></pre>
+
+            <h3>Minkowski and Rounded Features</h3>
+            <p>Create professional-looking rounded edges without complex math:</p>
+
+            <pre><code><span class="comment">// Rounded box using minkowski</span>
+<span class="keyword">module</span> <span class="function">rounded_box</span>(x, y, z, r=<span class="number">2</span>) {
+    <span class="function">minkowski</span>() {
+        <span class="function">cube</span>([x-<span class="number">2</span>*r, y-<span class="number">2</span>*r, z-r]);
+        <span class="function">sphere</span>(r=r);  <span class="comment">// "inflates" all edges by radius r</span>
+    }
+}
+
+<span class="comment">// Usage: creates a 20x10x5 box with 2mm rounded edges</span>
+<span class="function">rounded_box</span>(<span class="number">20</span>, <span class="number">10</span>, <span class="number">5</span>, r=<span class="number">2</span>);
+</code></pre>
+
+            <h3>Conditional Design Elements</h3>
+            <p>Make features optional with conditional logic:</p>
+
+            <pre><code><span class="comment">// Optional keyhole slots (set to 0 to disable)</span>
+<span class="keyword">keyhole_enabled</span> = <span class="keyword">true</span>;
+<span class="keyword">keyhole_w</span> = keyhole_enabled ? <span class="number">8</span> : <span class="number">0</span>;
+
+<span class="keyword">if</span> (keyhole_w > <span class="number">0</span>) {
+    <span class="comment">// Only generate keyhole geometry if enabled</span>
+    <span class="keyword">for</span> (x=[-<span class="number">20</span>, <span class="number">20</span>]) {
+        <span class="function">translate</span>([x, <span class="number">0</span>, <span class="number">0</span>])
+            <span class="function">keyhole_slot</span>(keyhole_w);
+    }
+}
+</code></pre>
+        </section>
+
+        <section id="workflow">
+            <h2>Professional Workflow</h2>
+
+            <h3>File Organization</h3>
+            <p>Structure your OpenSCAD projects like architectural drawings:</p>
+
+            <pre><code><span class="comment">// Header: Project info and licensing</span>
+<span class="comment">// Echo Show 5 Mount — Parametric OpenSCAD</span>
+<span class="comment">// Author: Your Name</span>
+<span class="comment">// License: CC-BY 4.0</span>
+
+<span class="comment">// Parameters section (like a spec sheet)</span>
+<span class="comment">// --- DEVICE DIMENSIONS ---</span>
+device_w = <span class="number">148</span>;
+
+<span class="comment">// --- PRINT SETTINGS ---</span>
+layer_height = <span class="number">0.28</span>;
+
+<span class="comment">// Utility modules (reusable functions)</span>
+<span class="keyword">module</span> <span class="function">rounded_box</span>(...) { ... }
+
+<span class="comment">// Main components</span>
+<span class="keyword">module</span> <span class="function">main_body</span>() { ... }
+<span class="keyword">module</span> <span class="function">mounting_plate</span>() { ... }
+
+<span class="comment">// Layout/preview logic</span>
+<span class="keyword">if</span> (ASSEMBLY_VIEW) assembly(); <span class="keyword">else</span> parts_for_printing();
+</code></pre>
+
+            <h3>Testing and Iteration</h3>
+            <p>Design verification strategies:</p>
+
+            <div class="info-box">
+                <p><strong>Test Print Strategy:</strong> Print small test sections first—screw holes, fit tolerances, hinge mechanisms. Don't print the full part until you've validated critical dimensions.</p>
+            </div>
+
+            <h3>Parameter Tuning</h3>
+            <p>Make your designs user-adjustable:</p>
+
+            <pre><code><span class="comment">// Tuning section (document what users might need to adjust)</span>
+<span class="comment">// --- TUNING PARAMETERS ---</span>
+<span class="keyword">fit_adjustment</span> = <span class="number">0.0</span>;    <span class="comment">// add if parts are tight (+0.5)</span>
+<span class="keyword">hinge_tension</span> = <span class="number">1.0</span>;     <span class="comment">// 0.8=loose, 1.2=tight</span>
+<span class="keyword">support_free</span> = <span class="keyword">true</span>;   <span class="comment">// false adds support structures</span>
+
+<span class="comment">// Apply adjustments to base measurements</span>
+actual_clearance = base_clearance + fit_adjustment;
+</code></pre>
+
+            <h3>Safety and Documentation</h3>
+            <p>For electrical or mechanical projects, embed safety requirements:</p>
+
+            <pre><code><span class="comment">// SAFETY: LED bulbs only - max 15W</span>
+<span class="comment">// Mount to code-compliant junction box</span>
+<span class="comment">// Maintain minimum clearances for heat dissipation</span>
+
+<span class="keyword">max_bulb_wattage</span> = <span class="number">15</span>;        <span class="comment">// Watts (LED only)</span>
+<span class="keyword">min_ventilation</span> = <span class="number">20</span>;        <span class="comment">// mm² vent area per Watt</span>
+<span class="keyword">heat_clearance</span> = <span class="number">10</span>;         <span class="comment">// mm from any heat source</span>
+</code></pre>
+
+            <div class="warning-box">
+                <p><strong>Professional Responsibility:</strong> When designing electrical enclosures or mechanical parts, research applicable codes and safety standards. Your parametric design should enforce safe practices, not just aesthetic choices.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Getting Started Checklist</h2>
+            
+            <ol>
+                <li><strong>Install OpenSCAD</strong> from <a href="https://openscad.org" style="color: var(--neon-cyan);">openscad.org</a></li>
+                <li><strong>Start Simple:</strong> Begin with basic shapes and boolean operations</li>
+                <li><strong>Think Parametric:</strong> Always use variables instead of hard-coded numbers</li>
+                <li><strong>Document Everything:</strong> Comments are your architectural notes</li>
+                <li><strong>Test Early:</strong> Print small test pieces before full models</li>
+                <li><strong>Study Real Projects:</strong> Examine the .scad files in this repository</li>
+                <li><strong>Join the Community:</strong> OpenSCAD forums and Reddit communities</li>
+            </ol>
+
+            <div class="info-box">
+                <p><strong>Next Steps:</strong> Download the example .scad files from this repository. Open them in OpenSCAD, modify parameters, and observe how the designs update. This is the fastest way to understand parametric design thinking.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Created by <a href="https://github.com/bneidlinger">bneidlinger</a> | <a href="https://bneidlinger.github.io">Visit my GitHub Pages</a></p>
+        <p>OpenSCAD projects available at <a href="https://github.com/bneidlinger/3dprints">github.com/bneidlinger/3dprints</a></p>
+    </footer>
+
+    <script>
+        // Add subtle interactivity
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) rotateX(5deg)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) rotateX(0)';
+            });
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add typing effect to code blocks on scroll
+        const observeCodeBlocks = () => {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '0';
+                        entry.target.style.transform = 'translateY(20px)';
+                        
+                        setTimeout(() => {
+                            entry.target.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, 200);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('pre').forEach(block => {
+                observer.observe(block);
+            });
+        };
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', observeCodeBlocks);
+    </script>
+</body>
+</html>
